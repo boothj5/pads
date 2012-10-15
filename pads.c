@@ -39,6 +39,8 @@ int main()
         ch = wgetch(pad);
 
         switch(ch) {
+            case KEY_PPAGE: // page up
+            case KEY_NPAGE: // page down
             case KEY_UP:
             case KEY_DOWN:
             case KEY_LEFT:
