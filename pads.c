@@ -37,6 +37,16 @@ int main()
     int ch = ERR;
     while(ch == ERR) {
         ch = wgetch(pad);
+
+        switch(ch) {
+            case KEY_UP:
+            case KEY_DOWN:
+            case KEY_LEFT:
+            case KEY_RIGHT:
+                break;
+            default:
+                ch = ERR;
+        }
     }
     endwin();
 
