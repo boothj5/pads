@@ -20,13 +20,11 @@ int main()
     size_t read = 0;
     
     if (gpl != NULL) {
-        size_t length = getline(&line, &read, gpl);
-        while (length != -1) {
+        while (getline(&line, &read, gpl) != -1) {
             wprintw(pad, line);
             free(line);
             line = NULL;
             read = 0;
-            length = getline(&line, &read, gpl);
         }
         fclose(gpl);
    }
