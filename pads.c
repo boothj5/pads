@@ -34,8 +34,12 @@ int main()
     wmove(pad, rows-1, cols-1);
     // prefresh(*pad, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol);
     prefresh(pad, 0, 0, 2, 4, rows - 3 , cols - 5);
-    wgetch(pad);
-    
+    wtimeout(pad, 20);
+
+    int ch = ERR;
+    while(ch == ERR) {
+        ch = wgetch(pad);
+    }
     endwin();
 
     return 0;
