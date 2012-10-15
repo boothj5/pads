@@ -2,11 +2,19 @@
 #include <stdio.h>
 #include <ncurses.h>
 
+// Pad rows are numbered 0 to PAD_SIZE-1
 #define PAD_SIZE 200
 
+// number of rows and cols on the screen
+// numbered 0 to rows-1 and 0 to cols-1
 static int rows;
 static int cols;
+
+// current pad row
 static int prow;
+
+// number of visible columns of pad
+static int visible_pad_height;
 
 static WINDOW *pad;
 
@@ -15,6 +23,7 @@ static void init_pad(void);
 static void read_file(void);
 static void handle_input(void);
 static void handle_exit(void);
+static void pad_draw(int pad_row);
 
 int main()
 {   
@@ -25,7 +34,7 @@ int main()
     read_file();
 
     // prefresh(*pad, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol);
-    prefresh(pad, prow, 0, 2, 4, rows - 3 , cols - 5);
+    pad_draw(0);
     wtimeout(pad, -1);
 
     while(TRUE) {
@@ -88,14 +97,14 @@ handle_input(void)
             if (prow < 0) {
                 prow = 0;
             }
-            prefresh(pad, prow, 0, 2, 4, rows - 3 , cols - 5);
+            pad_draw(prow);
             break;
         case KEY_DOWN:
             prow++;
             if (prow > PAD_SIZE) {
                 prow = PAD_SIZE;
             }
-            prefresh(pad, prow, 0, 2, 4, rows - 3 , cols - 5);
+            pad_draw(prow);
             break;
         default:
             break;
@@ -107,5 +116,15 @@ handle_exit(void)
 {
     endwin();
     printf("\nQuit successfully.\n\n");
+}
+
+static void
+pad_draw(int pad_row)
+{
+    prefresh(pad, 
+        // starting row and column of pad
+        pad_row, 0,
+        // screen coords of pad
+        2, 4, rows - 3 , cols - 5);
 }
 
