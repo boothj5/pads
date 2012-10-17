@@ -18,27 +18,26 @@ static int visible_pad_rows;
 
 static WINDOW *pad;
 
-static void init_ncurses(void);
+static void init_screen(void);
 static void init_pad(void);
 static void read_file(void);
-static void handle_input(void);
+static void handle_key(void);
 static void handle_exit(void);
 static void pad_draw(int pad_row);
 
 int main()
 {   
     atexit(handle_exit);
-    init_ncurses();
+    init_screen();
     init_pad();
     
     read_file();
 
-    // prefresh(*pad, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol);
     pad_draw(0);
     wtimeout(pad, -1);
 
     while(TRUE) {
-        handle_input();
+        handle_key();
     }
 
     endwin();
@@ -47,7 +46,7 @@ int main()
 }
 
 static void 
-init_ncurses(void)
+init_screen(void)
 {
     initscr();
     cbreak();
@@ -55,6 +54,8 @@ init_ncurses(void)
     init_pair(1, COLOR_WHITE, COLOR_BLUE);
     getmaxyx(stdscr, rows, cols);
     visible_pad_rows = rows - 4;
+    wprintw(stdscr, "Press UP, DOWN, PAGE UP or PAGE DOWN:");
+    refresh();
 }
 
 static void
@@ -88,28 +89,46 @@ read_file(void)
 }
 
 static void
-handle_input(void)
+handle_key(void)
 {
     int ch = wgetch(pad);
 
     switch(ch) {
+        case KEY_NPAGE: // page down
+            current_pad_row += visible_pad_rows;
+            if (current_pad_row + visible_pad_rows > PAD_ROWS) {
+                current_pad_row = PAD_ROWS - visible_pad_rows;
+            }
+            break;
+        case KEY_PPAGE: // page up
+            current_pad_row -= visible_pad_rows;
+            if (current_pad_row < 0) {
+                current_pad_row = 0;
+            }
+            break;
         case KEY_UP:
             current_pad_row--;
             if (current_pad_row < 0) {
                 current_pad_row = 0;
             }
-            pad_draw(current_pad_row);
             break;
         case KEY_DOWN:
             current_pad_row++;
             if (current_pad_row + visible_pad_rows > PAD_ROWS) {
-                current_pad_row--;
+                current_pad_row = PAD_ROWS - visible_pad_rows;
             }
-            pad_draw(current_pad_row);
             break;
         default:
             break;
     }
+
+    if (current_pad_row + visible_pad_rows > PAD_ROWS) {
+        current_pad_row = PAD_ROWS - visible_pad_rows;
+    } else if (current_pad_row < 0) {
+        current_pad_row = 0;
+    }
+    
+    pad_draw(current_pad_row);
 }
 
 static void
@@ -122,10 +141,7 @@ handle_exit(void)
 static void
 pad_draw(int pad_row)
 {
-    prefresh(pad, 
-        // starting row and column of pad
-        pad_row, 0,
-        // screen coords of pad
-        2, 0, rows - 3 , cols - 1);
+    // prefresh(*pad, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol);
+    prefresh(pad, pad_row, 0, 2, 0, rows - 3 , cols - 1);
 }
 
