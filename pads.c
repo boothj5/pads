@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include <ncurses.h>
 
-// file to read
-#define FILENAME "frankenstein.txt"
-
 // Pad rows are numbered 0 to PAD_SIZE-1
 #define PAD_ROWS 200
 
@@ -19,31 +16,38 @@ static int current_pad_row;
 // visible pad rows
 static int visible_pad_rows;
 
+// last line of file read
+static int last_line_read;
+
 static WINDOW *pad;
 
 static void init_screen(void);
 static void init_pad(void);
-static void read_file(void);
+static void read_file(char *filename);
 static void handle_key(void);
 static void handle_exit(void);
 static void pad_draw(int pad_row);
 
-int main()
+int main(int argc, char *argv[])
 {   
-    atexit(handle_exit);
-    init_screen();
-    init_pad();
-    
-    read_file();
+    if (argc != 2) {
+        printf("usage: %s filename\n", argv[0]);
+    } else {
+        atexit(handle_exit);
+        init_screen();
+        init_pad();
+        
+        read_file(argv[1]);
 
-    pad_draw(0);
-    wtimeout(pad, -1);
+        pad_draw(0);
+        wtimeout(pad, -1);
 
-    while(TRUE) {
-        handle_key();
+        while(TRUE) {
+            handle_key();
+        }
+
+        endwin();
     }
-
-    endwin();
 
     return 0;
 }
@@ -71,23 +75,26 @@ init_pad(void)
 }
 
 static void
-read_file(void)
+read_file(char *filename)
 {
-    FILE *gpl = fopen(FILENAME, "r");
+    FILE *gpl = fopen(filename, "r");
     char *line = NULL;
     size_t read = 0;
-    int line_num = 0;
+    int pad_lines_filled = 0;
+    last_line_read = 0;
     
     if (gpl != NULL) {
         while ((getline(&line, &read, gpl) != -1) && 
-                (line_num < PAD_ROWS)) {
-            wprintw(pad, "%d: %s", line_num, line);
+                (pad_lines_filled < PAD_ROWS)) {
+            wprintw(pad, "%s", line);
             free(line);
             line = NULL;
             read = 0;
-            line_num++;
+            pad_lines_filled++;
         }
+
         fclose(gpl);
+        last_line_read = pad_lines_filled - 1;
    }
 }
 
