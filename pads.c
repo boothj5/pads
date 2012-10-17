@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <ncurses.h>
 
+// file to read
+#define FILENAME "frankenstein.txt"
+
 // Pad rows are numbered 0 to PAD_SIZE-1
 #define PAD_ROWS 200
 
@@ -70,7 +73,7 @@ init_pad(void)
 static void
 read_file(void)
 {
-    FILE *gpl = fopen("frankenstein.txt", "r");
+    FILE *gpl = fopen(FILENAME, "r");
     char *line = NULL;
     size_t read = 0;
     int line_num = 0;
