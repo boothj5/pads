@@ -13,7 +13,7 @@ static int cols;
 // current pad row
 static int prow;
 
-// number of visible columns of pad
+// number of visible rows of pad
 static int visible_pad_height;
 
 static WINDOW *pad;
@@ -68,7 +68,7 @@ init_pad(void)
 static void
 read_file(void)
 {
-    FILE *gpl = fopen("COPYING", "r");
+    FILE *gpl = fopen("frankenstein.txt", "r");
     char *line = NULL;
     size_t read = 0;
     int line_num = 0;
